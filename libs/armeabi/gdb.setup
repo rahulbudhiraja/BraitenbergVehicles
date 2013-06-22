@@ -1,0 +1,6 @@
+set solib-search-path /Users/rahulbudhiraja/Android/of_v0072_android_release/examples/android/BraitenbergVehicles/obj/local/armeabi:/Users/rahulbudhiraja/Android/of_v0072_android_release/examples/android/BraitenbergVehicles/libs/armeabi
+directory /Users/rahulbudhiraja/Android/android-ndk-r8b/platforms/android-8/arch-arm/usr/include
+directory /Users/rahulbudhiraja/Android/of_v0072_android_release/examples/android/BraitenbergVehicles/src
+directory /Users/rahulbudhiraja/Android/android-ndk-r8b/sources/cxx-stl/system
+directory /Users/rahulbudhiraja/Android/of_v0072_android_release/examples/android/BraitenbergVehicles/libs/armeabi
+
