@@ -39,6 +39,9 @@ void testApp::setup()
 	greenFilter.allocate(w, h);
 	blueFilter.allocate(w, h);
 	yellowFilter.allocate(w, h);
+	croppedImage.allocate(235-72,290-165,OF_IMAGE_COLOR);// Portrait Image as seen by the phone .
+
+
 #ifdef PORTRAIT
 	rotatedCapturedImage.allocate(h,w);
 #endif
@@ -70,7 +73,7 @@ void testApp::update(){
 				//rgb.rotate(-90,w/2,h/2); // portrait Mode,this works but...
 
 
-				//mirror horizontal
+		//mirror horizontal
 				//rgb.mirror(false, true);
 
 				//duplicate rgb
@@ -100,8 +103,13 @@ void testApp::update(){
 //				blueContours.findContours(blueFilter, 50, w*h/5, 1, false);
 //				yellowContours.findContours(yellowFilter, 50, w*h/5, 1, false);
         
-				rgb.resize(800,480);
 
+				rgb.resize(800,480); // der
+
+				//rgb.rotate(-90,rgb.getWidth()/2,rgb.getHeight()/2);
+//				setPixelsSubRegion(&rgb,&croppedImage,180,85,135,265,true);
+				setPixelsSubRegion(&rgb,&croppedImage,72,165,235-72,290-165,true); // der
+			    croppedImage.resize(800,480);
 
 			}
 
@@ -134,11 +142,21 @@ void testApp::draw(){
 
 	    ofPushMatrix();
 
-	    ofTranslate(480,0);
-	    ofRotateZ(90);
-	    ofDrawAxis(10);
 
-	    rgb.draw(0,0);
+
+//	    croppedImage.draw(0,300);
+	    //ofCircle(185,85,10);
+	    ofTranslate(480,0); // DER
+
+	    ofRotateZ(90);
+	    ofDrawAxis(20);
+	   // rgb.draw(0,0);
+
+	    //croppedImage.draw(0,0);
+	    //croppedImage.draw(185,70);
+	   // rgb.draw(0,0);
+//	    ofCircle(185,85,10);
+
 	    ofSetColor(255,0,0);
 	    //redContours.resize(800,480);
 		redContours.draw(0,0);
@@ -153,7 +171,7 @@ void testApp::draw(){
 		//yellowContours.draw(0,0);
 		ofSetHexColor(0x000000);
 
-		//ofRect(0,0,250,400);
+
 
     if(redContours.nBlobs>0)
     {
@@ -174,6 +192,11 @@ ofCircle(p[0].sourceCenterX,p[0].sourceCenterY,20); // Axis is reversed so y of 
 
 		  ofPopMatrix();
 		  ofSetColor(255,0,0);
+
+
+// debug
+		 // ofRect(185,70,135,275);
+//
 		  ofSetLineWidth(10);
 		  ofLine(0,0,480,0);
 		  ofLine(0,0,0,800);
@@ -184,6 +207,8 @@ ofCircle(p[0].sourceCenterX,p[0].sourceCenterY,20); // Axis is reversed so y of 
 
 		  ofSetLineWidth(1);
 		  ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate()),20,350);
+
+		  ofLog()<<"The dimensions are"<<croppedImage.getWidth()<<"   "<<croppedImage.getHeight();
 
 }
 
@@ -230,5 +255,39 @@ void testApp::mouseReleased(int x, int y, int button){
 //--------------------------------------------------------------
 void testApp::windowResized(int w, int h){
 
+}
+
+void testApp::setPixelsSubRegion(ofxCvImage * orgImage, ofImage * targetImage,int x, int y,int width, int height, bool color)
+		{
+			unsigned char * pixels = orgImage->getPixels();
+			int totalWidth = orgImage->getWidth();
+			int subRegionLength = width * height;
+			if(color) subRegionLength*=3; // rgb
+			unsigned char subRegion[subRegionLength];
+
+			int result_pix = 0;
+			for (int i = y; i < y+height; i++)
+			{
+				for(int j = x; j < x+width; j++)
+				{
+					int base = (i * totalWidth) + j;
+					if(color) base *= 3; // rgb
+
+					subRegion[result_pix] = pixels[base];
+					result_pix++;
+
+					if(color)
+					{
+						subRegion[result_pix] = pixels[base+1];
+						result_pix++;
+						subRegion[result_pix] = pixels[base+2];
+						result_pix++;
+					}
+				}
+			}
+			if(color)
+				targetImage->setFromPixels(subRegion, width, height, OF_IMAGE_COLOR, true);
+			else
+				targetImage->setFromPixels(subRegion, width, height, OF_IMAGE_GRAYSCALE, false);
 }
 

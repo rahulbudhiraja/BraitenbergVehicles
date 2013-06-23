@@ -28,6 +28,7 @@ class testApp : public ofBaseApp{
 		int findHue;
 
 		ofxCvColorImage rgb,hsb,rotatedCapturedImage;
+		ofImage croppedImage;
 		ofxCvGrayscaleImage hue,sat,bri,filtered,filtered2,redFilter,yellowFilter,greenFilter,blueFilter;
 		ofxCvContourFinder contours,redContours,greenContours,blueContours,yellowContours;
 
@@ -40,6 +41,9 @@ class testApp : public ofBaseApp{
 		vector <ofPoint> attractPointsWithMovement;
 
 		void resetParticles();
+
+		//From oF forum
+		void setPixelsSubRegion(ofxCvImage * orgImage, ofImage * targetImage,int x, int y,int width, int height, bool color);
     
 
 };
