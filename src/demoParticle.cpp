@@ -25,8 +25,8 @@ void demoParticle::reset(){
 	
 	accl.set (0,0);
     vel.set(0,0);
-    r = 7.0;
-    maxspeed = 7;
+    r = 240.0;
+    maxspeed = 17;
    /// maxforce = 2;
 
 }

@@ -30,15 +30,24 @@ void testApp::setup()
 	findHue=120;
 
 	rgb.allocate(w, h);
-	hsb.allocate(w, h);
-	hue.allocate(800,480);
-	sat.allocate(800,480);
-	bri.allocate(800,480);
-	filtered.allocate(800,480);
-	redFilter.allocate(800,480);
+//	hsb.allocate(w, h);
+//	hue.allocate(800,480);
+//	sat.allocate(800,480);
+//	bri.allocate(800,480);
+//	filtered.allocate(800,480);
+//	redFilter.allocate(800,480);
 
-	croppedImage.allocate(235-72,290-165,OF_IMAGE_COLOR);// Portrait Image as seen by the phone .
+	hsb.allocate(w,h);
+	hue.allocate(w,h);
+	sat.allocate(w,h);
+	bri.allocate(w,h);
+	//filtered.allocate(82,63);
+	redFilter.allocate(w,h);
 
+
+	// original //
+	//croppedImage.allocate(235-72,290-165,OF_IMAGE_COLOR);// Portrait Image as seen by the phone .
+	croppedImage.allocate(w,h,OF_IMAGE_COLOR);
 
 #ifdef PORTRAIT
 	rotatedCapturedImage.allocate(h,w);
@@ -70,15 +79,16 @@ void testApp::update(){
 #endif
 				//rgb.rotate(-90,w/2,h/2); // portrait Mode,this works but...
 
-				rgb.resize(800,480); // der
+			//	rgb.resize(800,480); // der
 
+			//	setPixelsSubRegion(&rgb,&croppedImage,72+40,165,235-72,290-165,true); // der
 
-				//rgb.rotate(-90,rgb.getWidth()/2,rgb.getHeight()/2);
-//				setPixelsSubRegion(&rgb,&croppedImage,180,85,135,265,true);
-				setPixelsSubRegion(&rgb,&croppedImage,72+40,165,235-72,290-165,true); // der
-				croppedImage.resize(800,480);
+				setPixelsSubRegion(&rgb,&croppedImage,45,83,82,63,true);
+
+				croppedImage.resize(320,240);
 
 				hsb.setFromPixels(croppedImage.getPixels(),croppedImage.getWidth(),croppedImage.getHeight());
+				//hsb=rgb;
 
 				//convert to hsb
 				hsb.convertRgbToHsv();
@@ -87,18 +97,20 @@ void testApp::update(){
 				hsb.convertToGrayscalePlanarImages(hue, sat, bri);
 
 //				hue.resize(800,480);
-
+//				hue.resize(320,240);
 				//filter image based on the hue value were looking for
-				for (int i=0; i<800*480; i++)
+				for (int i=0; i<w*h; i++)
 				{
-					redFilter.getPixels()[i] = ofInRange(hue.getPixels()[i],0,13 ) ? 255 : 0; // red ..
-
+					redFilter.getPixels()[i] = ofInRange(hue.getPixels()[i],0,13) ? 255 : 0; // red ..
+//					ofLog()<<"Value of i"<<i;
 				}
 
+				ofLog()<<"The dimensions of the redFilter are"<<redFilter.getWidth()<<"  "<<redFilter.getHeight();
+				redFilter.flagImageChanged();
 
 				//run the contour finder on the filtered image to find blobs with a certain hue
-				redContours.findContours(redFilter, 50, w*h/5, 1, false);
-
+				redContours.findContours(redFilter, 150, w*h/5, 1, false);
+				//croppedImage.resize(800,480);
 
 			}
 
@@ -138,14 +150,17 @@ void testApp::draw(){
 	    ofDrawAxis(20);
 	   // rgb.draw(0,0);
 
-	    croppedImage.draw(0,0);
+	   // croppedImage.draw(0,0);
 	    //croppedImage.draw(185,70);
 	   // rgb.draw(0,0);
 //	    ofCircle(185,85,10);
 
 	    ofSetColor(255,0,0);
 	    //redContours.resize(800,480);
-		redContours.draw(0,0);
+
+		//hue.draw(0,0);
+
+		//redContours.draw(0,0);
 		ofSetColor(255,255,255);
 		//ofSetColor(0,255,0);
 		//rgb.draw(w,0);
@@ -157,7 +172,7 @@ void testApp::draw(){
 		//yellowContours.draw(0,0);
 		ofSetHexColor(0x000000);
 
-
+ofLog()<<"Number of Blobs"<<redContours.nBlobs;
 
     if(redContours.nBlobs>0)
     {
@@ -165,16 +180,18 @@ void testApp::draw(){
 //        {
 
     	 // Some Sort of modification might be necessary ,maybe multiplying something like 480/320 *x,800/240*y .Probably something like that may work .
-            p[0].sourceCenterX=redContours.blobs[0].centroid.x; //(800/320)
-            p[0].sourceCenterY=redContours.blobs[0].centroid.y; // 480/240
+            p[0].sourceCenterX=redContours.blobs[0].centroid.x*2.5; //(800/320)
+            p[0].sourceCenterY=redContours.blobs[0].centroid.y*2; // 480/240
+
+            ofLog()<<"Source Center"<<p[0].sourceCenterX<<"     "<<p[0].sourceCenterY;
 //        }
     }
 		for(int i = 0; i <  p.size(); i++){
 				p[i].drawp();
 			}
-ofFill();
-ofSetColor(255,0,0);
-ofCircle(p[0].sourceCenterX,p[0].sourceCenterY,20); // Axis is reversed so y of the image is around 480 and x which is effectively downwards is 800
+		ofFill();
+		ofSetColor(255,0,0);
+		ofCircle(p[0].sourceCenterX,p[0].sourceCenterY,20); // Axis is reversed so y of the image is around 480 and x which is effectively downwards is 800
 
 		  ofPopMatrix();
 		  ofSetColor(0,255,0);
