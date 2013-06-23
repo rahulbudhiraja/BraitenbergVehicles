@@ -41,9 +41,7 @@ void testApp::setup()
 	hue.allocate(w,h);
 	sat.allocate(w,h);
 	bri.allocate(w,h);
-	//filtered.allocate(82,63);
 	redFilter.allocate(w,h);
-
 
 	// original //
 	//croppedImage.allocate(235-72,290-165,OF_IMAGE_COLOR);// Portrait Image as seen by the phone .
@@ -60,12 +58,15 @@ void testApp::setup()
 	resetParticles();
 
 	ofSetFullscreen(true);
+	counter=0;
 }
 
 //--------------------------------------------------------------
 void testApp::update(){
 	grabber.update();
-	if(grabber.isFrameNew())
+	counter++;
+
+	if(grabber.isFrameNew()&&counter%2==0)
 	{
 //		capturedImage.setFromPixels(grabber.getPixels(),grabber.getWidth(),grabber.getHeight(),OF_IMAGE_COLOR);
 		//cop#
@@ -85,7 +86,7 @@ void testApp::update(){
 
 				setPixelsSubRegion(&rgb,&croppedImage,45,83,82,63,true);
 
-				croppedImage.resize(320,240);
+				croppedImage.resize(w,h);
 
 				hsb.setFromPixels(croppedImage.getPixels(),croppedImage.getWidth(),croppedImage.getHeight());
 				//hsb=rgb;
@@ -96,8 +97,7 @@ void testApp::update(){
 				//store the three channels as grayscale images
 				hsb.convertToGrayscalePlanarImages(hue, sat, bri);
 
-//				hue.resize(800,480);
-//				hue.resize(320,240);
+
 				//filter image based on the hue value were looking for
 				for (int i=0; i<w*h; i++)
 				{
@@ -128,8 +128,6 @@ void testApp::draw(){
 
 	    ofSetHexColor(0xFFFFFF);
 		//grabber.draw(0,00);
-		//capturedImage.resize(640, 480);
-		//capturedImage.draw(0,0);
 
 	    //rgb.resize(600,800); -- This wrks ...The exact size needs to be found though ...
 #ifdef PORTRAIT
@@ -149,12 +147,6 @@ void testApp::draw(){
 	    ofRotateZ(90);
 	    ofDrawAxis(20);
 	   // rgb.draw(0,0);
-
-	   // croppedImage.draw(0,0);
-	    //croppedImage.draw(185,70);
-	   // rgb.draw(0,0);
-//	    ofCircle(185,85,10);
-
 	    ofSetColor(255,0,0);
 	    //redContours.resize(800,480);
 

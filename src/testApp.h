@@ -44,7 +44,8 @@ class testApp : public ofBaseApp{
 
 		//From oF forum
 		void setPixelsSubRegion(ofxCvImage * orgImage, ofImage * targetImage,int x, int y,int width, int height, bool color);
-    
+
+		int counter;
 
 };
 

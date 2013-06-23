@@ -25,8 +25,8 @@ void demoParticle::reset(){
 	
 	accl.set (0,0);
     vel.set(0,0);
-    r = 240.0;
-    maxspeed = 17;
+    r = 2.0;
+    maxspeed = 10;
    /// maxforce = 2;
 
 }
@@ -42,10 +42,8 @@ void demoParticle::update(){
 	float d = desired.length();
     desired.normalize();
 	float ang = desired.angle(vel);
-	
 
-
-		if (d < 2400 && d > 30) {
+		if (d < 1200 && d > 30) {
    
       float m = ofMap(d,2400,600,maxspeed/6,maxspeed/4);
 	   m = ofMap(d,600,300,maxspeed/4,maxspeed/2);
@@ -123,7 +121,7 @@ void demoParticle::update(){
 	float d = desired.length();
     desired.normalize();
 
-	if (d < 2400 && d > 30) {
+	if ( d > 30) {
    
       float m = ofMap(d,2400,600,1.2*maxspeed,1.3* maxspeed);
 	  m = ofMap(d,600,300,1.3* maxspeed,	1.5* maxspeed);
