@@ -31,14 +31,12 @@ void testApp::setup()
 
 	rgb.allocate(w, h);
 	hsb.allocate(w, h);
-	hue.allocate(w, h);
-	sat.allocate(w, h);
-	bri.allocate(w, h);
-	filtered.allocate(w, h);
-	redFilter.allocate(w, h);
-	greenFilter.allocate(w, h);
-	blueFilter.allocate(w, h);
-	yellowFilter.allocate(w, h);
+	hue.allocate(800,480);
+	sat.allocate(800,480);
+	bri.allocate(800,480);
+	filtered.allocate(800,480);
+	redFilter.allocate(800,480);
+
 	croppedImage.allocate(235-72,290-165,OF_IMAGE_COLOR);// Portrait Image as seen by the phone .
 
 
@@ -72,12 +70,15 @@ void testApp::update(){
 #endif
 				//rgb.rotate(-90,w/2,h/2); // portrait Mode,this works but...
 
+				rgb.resize(800,480); // der
 
-		//mirror horizontal
-				//rgb.mirror(false, true);
 
-				//duplicate rgb
-				hsb = rgb;
+				//rgb.rotate(-90,rgb.getWidth()/2,rgb.getHeight()/2);
+//				setPixelsSubRegion(&rgb,&croppedImage,180,85,135,265,true);
+				setPixelsSubRegion(&rgb,&croppedImage,72+40,165,235-72,290-165,true); // der
+				croppedImage.resize(800,480);
+
+				hsb.setFromPixels(croppedImage.getPixels(),croppedImage.getWidth(),croppedImage.getHeight());
 
 				//convert to hsb
 				hsb.convertRgbToHsv();
@@ -88,28 +89,16 @@ void testApp::update(){
 //				hue.resize(800,480);
 
 				//filter image based on the hue value were looking for
-				for (int i=0; i<w*h; i++)
+				for (int i=0; i<800*480; i++)
 				{
 					redFilter.getPixels()[i] = ofInRange(hue.getPixels()[i],0,13 ) ? 255 : 0; // red ..
-//				//	greenFilter.getPixels()[i] = ofInRange(hue.getPixels()[i],75,82 ) ? 255 : 0; // green
-//					blueFilter.getPixels()[i] = ofInRange(hue.getPixels()[i],90,125) ? 255 : 0; // blue
-//					yellowFilter.getPixels()[i] = ofInRange(hue.getPixels()[i],37,45 ) ? 255 : 0; // yellow
+
 				}
-				filtered.flagImageChanged();
+
 
 				//run the contour finder on the filtered image to find blobs with a certain hue
 				redContours.findContours(redFilter, 50, w*h/5, 1, false);
-//				greenContours.findContours(greenFilter, 50, w*h/5, 1, false);
-//				blueContours.findContours(blueFilter, 50, w*h/5, 1, false);
-//				yellowContours.findContours(yellowFilter, 50, w*h/5, 1, false);
-        
 
-				rgb.resize(800,480); // der
-
-				//rgb.rotate(-90,rgb.getWidth()/2,rgb.getHeight()/2);
-//				setPixelsSubRegion(&rgb,&croppedImage,180,85,135,265,true);
-				setPixelsSubRegion(&rgb,&croppedImage,72,165,235-72,290-165,true); // der
-			    croppedImage.resize(800,480);
 
 			}
 
@@ -124,9 +113,6 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw(){
-
-
-
 
 	    ofSetHexColor(0xFFFFFF);
 		//grabber.draw(0,00);
@@ -152,7 +138,7 @@ void testApp::draw(){
 	    ofDrawAxis(20);
 	   // rgb.draw(0,0);
 
-	    //croppedImage.draw(0,0);
+	    croppedImage.draw(0,0);
 	    //croppedImage.draw(185,70);
 	   // rgb.draw(0,0);
 //	    ofCircle(185,85,10);
@@ -179,8 +165,8 @@ void testApp::draw(){
 //        {
 
     	 // Some Sort of modification might be necessary ,maybe multiplying something like 480/320 *x,800/240*y .Probably something like that may work .
-            p[0].sourceCenterX=redContours.blobs[0].centroid.x*2.5; //(800/320)
-            p[0].sourceCenterY=redContours.blobs[0].centroid.y*(480/240); // 480/240
+            p[0].sourceCenterX=redContours.blobs[0].centroid.x; //(800/320)
+            p[0].sourceCenterY=redContours.blobs[0].centroid.y; // 480/240
 //        }
     }
 		for(int i = 0; i <  p.size(); i++){
@@ -191,7 +177,7 @@ ofSetColor(255,0,0);
 ofCircle(p[0].sourceCenterX,p[0].sourceCenterY,20); // Axis is reversed so y of the image is around 480 and x which is effectively downwards is 800
 
 		  ofPopMatrix();
-		  ofSetColor(255,0,0);
+		  ofSetColor(0,255,0);
 
 
 // debug
