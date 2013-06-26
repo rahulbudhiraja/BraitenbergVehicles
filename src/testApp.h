@@ -4,6 +4,7 @@
 #include "ofMain.h"
 #include "ofxOpenCv.h"
 #include "demoParticle.h"
+//#define DEBUG
 
 class testApp : public ofBaseApp{
 	
@@ -46,6 +47,8 @@ class testApp : public ofBaseApp{
 		void setPixelsSubRegion(ofxCvImage * orgImage, ofImage * targetImage,int x, int y,int width, int height, bool color);
 
 		int counter;
+
+		string HueValue;
 
 };
 

@@ -3,6 +3,7 @@
 
 //# define PORTRAIT
 
+
 //--------------------------------------------------------------
 void testApp::setup()
 {
@@ -16,11 +17,12 @@ void testApp::setup()
 	grabber.initGrabber(320,240);
 	grabber.listDevices();
 
+
 //	capturedImage.allocate(320, 240, OF_IMAGE_COLOR);
 
 #ifndef PORTRAIT
-	w = 320;
-	h = 240;
+	w = 240;
+	h = 160;
 #else
 	w=240;
 	h=320;
@@ -37,7 +39,7 @@ void testApp::setup()
 //	filtered.allocate(800,480);
 //	redFilter.allocate(800,480);
 
-	hsb.allocate(w,h);
+	hsb.allocate(82,63);
 	hue.allocate(w,h);
 	sat.allocate(w,h);
 	bri.allocate(w,h);
@@ -59,32 +61,34 @@ void testApp::setup()
 
 	ofSetFullscreen(true);
 	counter=0;
+#ifdef DEBUG
+	HueValue="";
+#endif
 }
 
 //--------------------------------------------------------------
 void testApp::update(){
 	grabber.update();
-	counter++;
 
-	if(grabber.isFrameNew()&&counter%2==0)
+counter++;
+	if(grabber.isFrameNew()&&counter%10==0)
 	{
 //		capturedImage.setFromPixels(grabber.getPixels(),grabber.getWidth(),grabber.getHeight(),OF_IMAGE_COLOR);
 		//cop#
+		counter=counter%10;
 
 #ifndef PORTRAIT
-				rgb.setFromPixels(grabber.getPixels(), w, h);
+				rgb.setFromPixels(grabber.getPixels(), 320,240);
 #else
 				rotatedCapturedImage.setFromPixels(grabber.getPixels(), h, w);
 				rotatedCapturedImage.rotate(-90,h/2,w/2);
 				rgb=rotatedCapturedImage;
 #endif
 				//rgb.rotate(-90,w/2,h/2); // portrait Mode,this works but...
-
 			//	rgb.resize(800,480); // der
-
 			//	setPixelsSubRegion(&rgb,&croppedImage,72+40,165,235-72,290-165,true); // der
 
-				setPixelsSubRegion(&rgb,&croppedImage,45,83,82,63,true);
+				setPixelsSubRegion(&rgb,&croppedImage,37,78,82,63,true);
 
 				croppedImage.resize(w,h);
 
@@ -101,7 +105,7 @@ void testApp::update(){
 				//filter image based on the hue value were looking for
 				for (int i=0; i<w*h; i++)
 				{
-					redFilter.getPixels()[i] = ofInRange(hue.getPixels()[i],0,13) ? 255 : 0; // red ..
+					redFilter.getPixels()[i] = ofInRange(hue.getPixels()[i],0,13) || ofInRange(hue.getPixels()[i],160,180)? 255 : 0; // red ..
 //					ofLog()<<"Value of i"<<i;
 				}
 
@@ -109,9 +113,12 @@ void testApp::update(){
 				redFilter.flagImageChanged();
 
 				//run the contour finder on the filtered image to find blobs with a certain hue
-				redContours.findContours(redFilter, 150, w*h/5, 1, false);
+				redContours.findContours(redFilter, 50, w*h/5, 1, false);
 				//croppedImage.resize(800,480);
-
+				//rgb.resize(800,480);
+#ifdef DEBUG
+				croppedImage.resize(800,480);
+#endif
 			}
 
 	for(int i = 0; i <  p.size(); i++){
@@ -138,39 +145,25 @@ void testApp::draw(){
 
 	    ofPushMatrix();
 
-
-
-//	    croppedImage.draw(0,300);
-	    //ofCircle(185,85,10);
 	    ofTranslate(480,0); // DER
 
 	    ofRotateZ(90);
 	    ofDrawAxis(20);
-	   // rgb.draw(0,0);
+	    //rgb.draw(0,0);
+#ifdef DEBUG
+	     croppedImage.draw(0,0);
+#endif
+
 	    ofSetColor(255,0,0);
 	    //redContours.resize(800,480);
-
-		//hue.draw(0,0);
-
-		//redContours.draw(0,0);
-		ofSetColor(255,255,255);
-		//ofSetColor(0,255,0);
-		//rgb.draw(w,0);
-		ofSetColor(0,0,255);
-		//blueContours.draw(0,0);
-		ofSetColor(0,255,0);
-		//greenContours.draw(0,0);
-		ofSetColor(255,255,51);
-		//yellowContours.draw(0,0);
 		ofSetHexColor(0x000000);
 
-ofLog()<<"Number of Blobs"<<redContours.nBlobs;
+		ofLog()<<"Number of Blobs"<<redContours.nBlobs;
 
-    if(redContours.nBlobs>0)
+    if(redContours.nBlobs>0&&counter%10==0)
     {
 //        if(contours.blobs[0].area>1000)
 //        {
-
     	 // Some Sort of modification might be necessary ,maybe multiplying something like 480/320 *x,800/240*y .Probably something like that may work .
             p[0].sourceCenterX=redContours.blobs[0].centroid.x*2.5; //(800/320)
             p[0].sourceCenterY=redContours.blobs[0].centroid.y*2; // 480/240
@@ -183,7 +176,7 @@ ofLog()<<"Number of Blobs"<<redContours.nBlobs;
 			}
 		ofFill();
 		ofSetColor(255,0,0);
-		ofCircle(p[0].sourceCenterX,p[0].sourceCenterY,20); // Axis is reversed so y of the image is around 480 and x which is effectively downwards is 800
+		ofCircle(p[0].sourceCenterX,p[0].sourceCenterY,2); // Axis is reversed so y of the image is around 480 and x which is effectively downwards is 800
 
 		  ofPopMatrix();
 		  ofSetColor(0,255,0);
@@ -199,9 +192,11 @@ ofLog()<<"Number of Blobs"<<redContours.nBlobs;
 		  ofLine(0,799,480,799);
 
 
-
+#ifdef DEBUG
+		  ofDrawBitmapString("Hue value " + ofToString(hue.getPixels()[10*240+2]),20,20);
+#endif
 		  ofSetLineWidth(1);
-		  ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate()),20,350);
+		  //ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate()),20,350);
 
 		  ofLog()<<"The dimensions are"<<croppedImage.getWidth()<<"   "<<croppedImage.getHeight();
 
@@ -238,8 +233,11 @@ void testApp::mouseDragged(int x, int y, int button){
 }
 
 //--------------------------------------------------------------
-void testApp::mousePressed(int x, int y, int button){
-	
+void testApp::mousePressed(int x, int y, int button)
+
+{
+	HueValue=""+ hue.getPixels()[0];
+	ofLog()<<" Hue value"<<hue.getPixels()[y+(320*x)/480];
 }
 
 //--------------------------------------------------------------
