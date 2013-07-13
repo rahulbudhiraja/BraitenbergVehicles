@@ -30,7 +30,7 @@ class testApp : public ofBaseApp{
 
 		ofxCvColorImage rgb,hsb,rotatedCapturedImage;
 		ofImage croppedImage;
-		ofxCvGrayscaleImage hue,sat,bri,filtered,filtered2,redFilter,yellowFilter,greenFilter,blueFilter;
+		ofxCvGrayscaleImage hue,sat,bri,filtered,filtered2,redFilter,yellowFilter,greenFilter,blueFilter,Filter;
 		ofxCvContourFinder contours,redContours,greenContours,blueContours,yellowContours;
 
 		/** Variables for the actual vehicles */
@@ -50,6 +50,11 @@ class testApp : public ofBaseApp{
 
 		string HueValue;
 
+  	    ofFile settingsFile;
+	    ofBuffer settingsBuff;
+	    vector<string>Settings;
+	    int sensorNumSelected;
+	    int lowerHue,upperHue;
 };
 
 #endif	

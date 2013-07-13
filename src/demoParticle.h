@@ -39,5 +39,7 @@ class demoParticle{
 
 		vector <ofPoint> * attractPoints; 
 
-        int sourceCenterX,sourceCenterY;
+        int sourceCenterX,sourceCenterY;\
+
+        float blink;
 };

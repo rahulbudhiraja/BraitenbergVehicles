@@ -37,14 +37,14 @@ void testApp::setup()
 //	sat.allocate(800,480);
 //	bri.allocate(800,480);
 //	filtered.allocate(800,480);
-//	redFilter.allocate(800,480);
+//	Filter.allocate(800,480);
 
 	hsb.allocate(82,63);
 	hue.allocate(w,h);
 	sat.allocate(w,h);
 	bri.allocate(w,h);
-	redFilter.allocate(w,h);
-
+	//Filter.allocate(w,h);
+	Filter.allocate(w,h);
 	// original //
 	//croppedImage.allocate(235-72,290-165,OF_IMAGE_COLOR);// Portrait Image as seen by the phone .
 	croppedImage.allocate(w,h,OF_IMAGE_COLOR);
@@ -55,7 +55,6 @@ void testApp::setup()
 
 	/* the braitenberg vehicle graphics */
 	p.assign(1, demoParticle());
-	currentMode = aggressive;
 
 	resetParticles();
 
@@ -64,6 +63,31 @@ void testApp::setup()
 #ifdef DEBUG
 	HueValue="";
 #endif
+
+	settingsFile.open("settings.txt");
+    settingsBuff = settingsFile.readToBuffer();
+
+	Settings=ofSplitString(settingsBuff.getText(),",");
+	cout<<Settings[0]<<endl;
+
+	if(strcmp(Settings[0].c_str(),"fear")==0)
+		currentMode = fear;
+	else if(strcmp(Settings[0].c_str(),"aggression")==0)
+		currentMode = aggressive;
+	else if(strcmp(Settings[0].c_str(),"permlove")==0)
+		currentMode = permlove;
+	else if(strcmp(Settings[0].c_str(),"templove")==0)
+		currentMode = templove;
+
+	sensorNumSelected=ofToInt(Settings[1]);
+
+	if(sensorNumSelected==1)
+		{lowerHue=160;upperHue=180;}
+	else if(sensorNumSelected==2)
+		{lowerHue=30;upperHue=55;}
+	else if(sensorNumSelected==3)
+		{lowerHue=70;upperHue=120;}
+
 }
 
 //--------------------------------------------------------------
@@ -105,15 +129,18 @@ counter++;
 				//filter image based on the hue value were looking for
 				for (int i=0; i<w*h; i++)
 				{
-					redFilter.getPixels()[i] = ofInRange(hue.getPixels()[i],0,13) || ofInRange(hue.getPixels()[i],160,180)? 255 : 0; // red ..
-//					ofLog()<<"Value of i"<<i;
+					if(sensorNumSelected==1)
+					Filter.getPixels()[i] = ofInRange(hue.getPixels()[i],0,15) || ofInRange(hue.getPixels()[i],lowerHue,upperHue)? 255 : 0; // red ..
+					else Filter.getPixels()[i] =ofInRange(hue.getPixels()[i],lowerHue,upperHue)? 255 : 0; // green or blue
+					// ofLog()<<"Value of i"<<i;
 				}
 
-				ofLog()<<"The dimensions of the redFilter are"<<redFilter.getWidth()<<"  "<<redFilter.getHeight();
-				redFilter.flagImageChanged();
+				ofLog()<<"The dimensions of the Filter are"<<Filter.getWidth()<<"  "<<Filter.getHeight();
+        
+				Filter.flagImageChanged();
 
 				//run the contour finder on the filtered image to find blobs with a certain hue
-				redContours.findContours(redFilter, 50, w*h/5, 1, false);
+				redContours.findContours(Filter, 10, w*h/5, 1, false);
 				//croppedImage.resize(800,480);
 				//rgb.resize(800,480);
 #ifdef DEBUG
@@ -124,6 +151,9 @@ counter++;
 	for(int i = 0; i <  p.size(); i++){
 			p[i].setMode(currentMode);
 			p[i].update();
+
+			 if(currentMode==fear&&(p[i].pos.x<-100||p[i].pos.x>ofGetWidth()+100)||(p[i].pos.y>ofGetHeight()+100||p[i].pos.y<-100))
+			            p[i].reset();
 		}
 
 	ofLog()<<"The dimensions are"<<ofGetScreenWidth()<<"  "<<ofGetScreenHeight();
@@ -179,7 +209,8 @@ void testApp::draw(){
 		ofCircle(p[0].sourceCenterX,p[0].sourceCenterY,2); // Axis is reversed so y of the image is around 480 and x which is effectively downwards is 800
 
 		  ofPopMatrix();
-		  ofSetColor(0,255,0);
+
+		  ofSetColor(190,190,190);
 
 
 // debug
@@ -199,7 +230,7 @@ void testApp::draw(){
 		  //ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate()),20,350);
 
 		  ofLog()<<"The dimensions are"<<croppedImage.getWidth()<<"   "<<croppedImage.getHeight();
-
+		  ofLog()<<"Sensor num "<<sensorNumSelected<<"    "<<currentMode;
 }
 
 //--------------------------------------------------------------

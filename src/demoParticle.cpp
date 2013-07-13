@@ -49,6 +49,9 @@ void demoParticle::update(){
 
         steer = (desired -vel);
 
+        ofVec2f Xaxis; Xaxis.set(1,0);
+        blink = desired.angle(ofVec2f(1,0));
+
 //      cout << "steer"<< steer ;
 
         steer.limit(maxforce);
@@ -125,9 +128,11 @@ void demoParticle::update(){
 
 
      }
+*/
+     else if( mode == permlove){
+     //target.set (ofGetMouseX(), ofGetMouseY());
+    	 target.set (sourceCenterX,sourceCenterY);
 
-     /*else if( mode == permlove){
-     target.set (ofGetMouseX(), ofGetMouseY());
      desired = (target - pos);
      float d = desired.length();
      desired.normalize();
@@ -149,12 +154,13 @@ void demoParticle::update(){
      vel.limit(maxspeed);
      pos +=vel;
      accl *= 0;
-     }*/
+     }
 
     else if( mode == fear){
 
 
-        target.set (ofGetMouseX(), ofGetMouseY());
+//        target.set (ofGetMouseX(), ofGetMouseY());
+    	target.set (sourceCenterX,sourceCenterY);
         desired = -(target - pos);
         float d = desired.length();
         desired.normalize();
@@ -232,7 +238,9 @@ void demoParticle::update(){
 
     else if( mode == templove){
 
-        target.set (ofGetMouseX(), ofGetMouseY());
+        //target.set (ofGetMouseX(), ofGetMouseY());
+    	 target.set (sourceCenterX,sourceCenterY);
+
         desired = -(target - pos);
         float d = desired.length();
         desired.normalize();
@@ -322,8 +330,21 @@ void demoParticle::drawp(){
     ofSetColor(0);
     ofFill();
 	ofSetColor(0, 128, 0);
+
     ofEllipse( -14, 0, 10, 10 );  // left wheel
-    ofEllipse( -14, 14, 10, 10 ); // right wheel 
+    ofEllipse( -14, 14, 10, 10 ); // right wheel
+
+    /** Experimental Feature */
+
+//    ofFill();
+//	ofSetColor(255,0,0);
+//
+//	if(blink>-90&&blink<=90)
+//		ofEllipse( -14, 0, 10, 10 );  // left wheel
+//	else  ofEllipse( -14, 14, 10, 10 ); // right wheel
+
+	///
+
 
     // show the sensor/wheel connections
     ofNoFill();
